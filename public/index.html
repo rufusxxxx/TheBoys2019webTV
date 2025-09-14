@@ -136,6 +136,7 @@
             background: linear-gradient(45deg, var(--primary), #ff6b6b);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-align: left;
         }
         
         .hero-description {
@@ -369,6 +370,16 @@
         .btn:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
+            color: white;
+        }
+        
+        .btn-refresh {
+            background-color: #2a2a2a;
+            margin-right: auto;
+        }
+        
+        .btn-refresh:hover {
+            background-color: #3a3a3a;
         }
         
         /* Fullscreen message */
@@ -463,6 +474,41 @@
         
         .error-message p {
             margin-bottom: 20px;
+        }
+        
+        /* Status indicator */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-left: 15px;
+        }
+        
+        .status-online {
+            background-color: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+        }
+        
+        .status-offline {
+            background-color: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .status-online .status-dot {
+            background-color: #2ecc71;
+        }
+        
+        .status-offline .status-dot {
+            background-color: #e74c3c;
         }
         
         /* Cast Modal */
@@ -577,6 +623,7 @@
             
             .hero-title {
                 font-size: 2rem;
+                text-align: center;
             }
             
             .episodes-table {
@@ -621,6 +668,15 @@
                 font-size: 1.5rem;
                 margin-bottom: 20px;
             }
+            
+            .player-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-refresh {
+                margin-right: 0;
+            }
         }
     </style>
 </head>
@@ -632,7 +688,7 @@
     <div class="modal-overlay" id="castModal">
         <div class="cast-modal">
             <button class="close-modal" id="closeCastModal">&times;</button>
-            <h2 class="cast-title">Акторський склад</h2>
+            <h2 class="cast-title">Актори</h2>
             <div class="cast-grid" id="castGrid">
                 <div class="loading">
                     <div class="spinner"></div>
@@ -662,7 +718,11 @@
                 <nav class="nav-links">
                     <a href="/" class="active">Головна</a>
                     <a id="seasonsLink">Сезони</a>
-                    <a id="castLink">Акторський склад</a>
+                    <a id="castLink">Актори</a>
+                    <span class="status-indicator status-online" id="statusIndicator">
+                        <span class="status-dot"></span>
+                        <span id="statusText">Онлайн</span>
+                    </span>
                 </nav>
             </div>
         </div>
@@ -723,12 +783,17 @@
             const closeSeasonsModal = document.getElementById('closeSeasonsModal');
             const castGrid = document.getElementById('castGrid');
             const seasonsAccordion = document.getElementById('seasonsAccordion');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
             
             // Константи для TMDb API
             const API_KEY = '2c0650e86bd4313266d8651b81e4f713';
             const SERIES_ID = 76479; // ID серіалу "The Boys" на TMDb
             const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
             const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/185x278/333/fff?text=No+Image';
+            
+            // Оновлюємо статус
+            updateStatus();
             
             // Відкриття модального вікна з акторським складом
             castLink.addEventListener('click', function() {
@@ -763,6 +828,24 @@
                     seasonsModal.classList.remove('active');
                 }
             });
+            
+            // Функція для оновлення статусу
+            async function updateStatus() {
+                try {
+                    // Перевіряємо статус API
+                    const response = await fetch('/api/status');
+                    if (response.ok) {
+                        statusIndicator.className = 'status-indicator status-online';
+                        statusText.textContent = 'Онлайн';
+                    } else {
+                        throw new Error('API не відповідає');
+                    }
+                } catch (error) {
+                    statusIndicator.className = 'status-indicator status-offline';
+                    statusText.textContent = 'Офлайн';
+                    console.error('Помилка перевірки статусу:', error);
+                }
+            }
             
             // Функція для завантаження акторського складу з TMDb API
             async function loadCast() {
@@ -886,7 +969,6 @@
             // Функція для відображення статичних даних про сезони (як резерв)
             function renderStaticSeasons() {
                 seasonsAccordion.innerHTML = `
-                    <!-- Season 1 -->
                     <div class="season-item">
                         <div class="season-header" onclick="toggleSeason(1)">
                             <h3 class="season-title">
@@ -961,268 +1043,10 @@
                                         </tr>
                                         <tr>
                                             <td class="episode-num">8</td>
-                                            <td class="episode-title">«Ты меня нашёл»</td>
+                                            <td class="episode-title">«Ты меня найшел»</td>
                                             <td class="episode-director">Эрик Крипке</td>
                                             <td class="episode-writer">Энн Кофель Сондерс и Ребекка Сонненшайн</td>
                                             <td class="episode-date">26 июля 2019</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Season 2 -->
-                    <div class="season-item">
-                        <div class="season-header" onclick="toggleSeason(2)">
-                            <h3 class="season-title">
-                                <i class="fas fa-play-circle season-icon"></i>
-                                2 сезон (2020)
-                            </h3>
-                            <span class="season-toggle" id="toggle2">
-                                <i class="fas fa-chevron-down"></i>
-                            </span>
-                        </div>
-                        <div class="season-content" id="season2">
-                            <div class="episodes-table-container">
-                                <table class="episodes-table">
-                                    <thead>
-                                        <tr>
-                                            <th class="episode-num">№</th>
-                                            <th class="episode-title">Назва</th>
-                                            <th class="episode-director">Режисер</th>
-                                            <th class="episode-writer">Автор сценарію</th>
-                                            <th class="episode-date">Дата прем'єри</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="episode-num">1</td>
-                                            <td class="episode-title">«Большая поездка»</td>
-                                            <td class="episode-director">Филип Сгриккиа</td>
-                                            <td class="episode-writer">Эрик Крипке</td>
-                                            <td class="episode-date">4 сентября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">2</td>
-                                            <td class="episode-title">«Правильная подготовка и планирование»</td>
-                                            <td class="episode-director">Лиз Фридлендер</td>
-                                            <td class="episode-writer">Ребекка Сонненшайн</td>
-                                            <td class="episode-date">4 сентября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">3</td>
-                                            <td class="episode-title">«За холмом тысячи людей с мечами»</td>
-                                            <td class="episode-director">Стив Бойум</td>
-                                            <td class="episode-writer">Крэйг Розенберг</td>
-                                            <td class="episode-date">4 сентября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">4</td>
-                                            <td class="episode-title">«Ничего подобного в мире нет»</td>
-                                            <td class="episode-director">Фред Туа</td>
-                                            <td class="episode-writer">Майкл Солтцмэн</td>
-                                            <td class="episode-date">11 сентября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">5</td>
-                                            <td class="episode-title">«Нам пора идти»</td>
-                                            <td class="episode-director">Батан Сильва</td>
-                                            <td class="episode-writer">Элли Монахэн</td>
-                                            <td class="episode-date">18 сентября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">6</td>
-                                            <td class="episode-title">«Прочь чёртовы двери»</td>
-                                            <td class="episode-director">Сара Бойд</td>
-                                            <td class="episode-writer">Анслем Ричардсон</td>
-                                            <td class="episode-date">25 сентября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">7</td>
-                                            <td class="episode-title">«Мясник, пекарь, свечник»</td>
-                                            <td class="episode-director">Стефан Щварц</td>
-                                            <td class="episode-writer">Крэйг Розенберг</td>
-                                            <td class="episode-date">2 октября 2020</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">8</td>
-                                            <td class="episode-title">«Что я знаю»</td>
-                                            <td class="episode-director">Алекс Грейвз</td>
-                                            <td class="episode-writer">Ребекка Сонненшайн</td>
-                                            <td class="episode-date">9 октября 2020</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Season 3 -->
-                    <div class="season-item">
-                        <div class="season-header" onclick="toggleSeason(3)">
-                            <h3 class="season-title">
-                                <i class="fas fa-play-circle season-icon"></i>
-                                3 сезон (2022)
-                            </h3>
-                            <span class="season-toggle" id="toggle3">
-                                <i class="fas fa-chevron-down"></i>
-                            </span>
-                        </div>
-                        <div class="season-content" id="season3">
-                            <div class="episodes-table-container">
-                                <table class="episodes-table">
-                                    <thead>
-                                        <tr>
-                                            <th class="episode-num">№</th>
-                                            <th class="episode-title">Назва</th>
-                                            <th class="episode-director">Режисер</th>
-                                            <th class="episode-writer">Автор сценарію</th>
-                                            <th class="episode-date">Дата прем'єри</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="episode-num">1</td>
-                                            <td class="episode-title">«Расплата»</td>
-                                            <td class="episode-director">Филип Сгриккиа</td>
-                                            <td class="episode-writer">Крэйг Розенберг</td>
-                                            <td class="episode-date">3 июня 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">2</td>
-                                            <td class="episode-title">«Единственный в небе»</td>
-                                            <td class="episode-director">Филип Сгриккиа</td>
-                                            <td class="episode-writer">Дэвид Рид</td>
-                                            <td class="episode-date">3 июня 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">3</td>
-                                            <td class="episode-title">«Берег варваров»</td>
-                                            <td class="episode-director">Джулиан Холмс</td>
-                                            <td class="episode-writer">Анслем Ричардсон и Джефф Олл</td>
-                                            <td class="episode-date">3 июня 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">4</td>
-                                            <td class="episode-title">«Славная пятилетка»</td>
-                                            <td class="episode-director">Джулиан Холмс</td>
-                                            <td class="episode-writer">Мередит Глинн</td>
-                                            <td class="episode-date">10 июня 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">5</td>
-                                            <td class="episode-title">«Последний взор на сей мир лжи»</td>
-                                            <td class="episode-director">Нельсон Крэгг</td>
-                                            <td class="episode-writer">Элли Монахэн</td>
-                                            <td class="episode-date">17 июня 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">6</td>
-                                            <td class="episode-title">«Героргазм»</td>
-                                            <td class="episode-director">Нельсон Крэгг</td>
-                                            <td class="episode-writer">Джессика Чоу</td>
-                                            <td class="episode-date">24 июня 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">7</td>
-                                            <td class="episode-title">«Вот зажгу я пару свеч — ты в постельку можешь лечь»</td>
-                                            <td class="episode-director">Сара Бойд</td>
-                                            <td class="episode-writer">Поль Греллонг</td>
-                                            <td class="episode-date">1 июля 2022</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">8</td>
-                                            <td class="episode-title">«До белого каления»</td>
-                                            <td class="episode-director">Сара Бойд</td>
-                                            <td class="episode-writer">Логан Ричи и Дэвид Рид</td>
-                                            <td class="episode-date">8 июля 2022</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Season 4 -->
-                    <div class="season-item">
-                        <div class="season-header" onclick="toggleSeason(4)">
-                            <h3 class="season-title">
-                                <i class="fas fa-play-circle season-icon"></i>
-                                4 сезон (2024)
-                            </h3>
-                            <span class="season-toggle" id="toggle4">
-                                <i class="fas fa-chevron-down"></i>
-                            </span>
-                        </div>
-                        <div class="season-content" id="season4">
-                            <div class="episodes-table-container">
-                                <table class="episodes-table">
-                                    <thead>
-                                        <tr>
-                                            <th class="episode-num">№</th>
-                                            <th class="episode-title">Назва</th>
-                                            <th class="episode-director">Режисер</th>
-                                            <th class="episode-writer">Автор сценарію</th>
-                                            <th class="episode-date">Дата прем'єри</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="episode-num">1</td>
-                                            <td class="episode-title">«Отдел грязных трюков»</td>
-                                            <td class="episode-director">Фил Сгриккиа</td>
-                                            <td class="episode-writer">Дэвид Рид</td>
-                                            <td class="episode-date">13 июня 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">2</td>
-                                            <td class="episode-title">«Жизнь среди заразы»</td>
-                                            <td class="episode-director">Карен Гавиола</td>
-                                            <td class="episode-writer">Джессика Чоу</td>
-                                            <td class="episode-date">13 июня 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">3</td>
-                                            <td class="episode-title">«Вейся, красный наш флаг»</td>
-                                            <td class="episode-director">Фред Туа</td>
-                                            <td class="episode-writer">Элли Монахэн</td>
-                                            <td class="episode-date">13 июня 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">4</td>
-                                            <td class="episode-title">«Мудрость пожилых»</td>
-                                            <td class="episode-director">Фил Сгриккиа</td>
-                                            <td class="episode-writer">Джофф Олл</td>
-                                            <td class="episode-date">20 июня 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">5</td>
-                                            <td class="episode-title">«Остерегайся бармаглота, сын мой»</td>
-                                            <td class="episode-director">Шана Стейн</td>
-                                            <td class="episode-writer">Джудалина Нейра</td>
-                                            <td class="episode-date">27 июня 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">6</td>
-                                            <td class="episode-title">«Грязный бизнес»</td>
-                                            <td class="episode-director">Карен Гавиола</td>
-                                            <td class="episode-writer">Анслем Ричардсон</td>
-                                            <td class="episode-date">4 июля 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">7</td>
-                                            <td class="episode-title">«Инсайдер»</td>
-                                            <td class="episode-director">Катриона Маккензи</td>
-                                            <td class="episode-writer">Поль Греллонг</td>
-                                            <td class="episode-date">11 июля 2024</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="episode-num">8</td>
-                                            <td class="episode-title">«Убийственный забег»</td>
-                                            <td class="episode-director">Эрик Крипke</td>
-                                            <td class="episode-writer">Джессика Чоу и Дэвид Рид</td>
-                                            <td class="episode-date">18 июля 2024</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1247,13 +1071,21 @@
             // Функція для завантаження плеєрів
             async function loadPlayers() {
                 try {
+                    playersContainer.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Завантаження плеєрів з kinogo.run...</p>
+                        </div>
+                    `;
+                    
                     const response = await fetch('/api/data');
                     const data = await response.json();
                     
                     if (data.success) {
                         renderPlayers(data.players);
+                        updateStatus();
                     } else {
-                        showError('Не вдалося завантажити плеєри: ' + data.error);
+                        showError('Не вдалося завантажити плеєри: ' + (data.error || 'Невідома помилка'));
                     }
                 } catch (error) {
                     console.error('Помилка при завантаженні плеєрів:', error);
@@ -1264,7 +1096,7 @@
             // Функція для відображення плеєрів
             function renderPlayers(players) {
                 if (!players || players.length === 0) {
-                    showError('Немає доступних плеєрів');
+                    showError('Немає доступних плеєрів з kinogo.run');
                     return;
                 }
                 
@@ -1300,6 +1132,9 @@
                             </div>
                         </div>
                         <div class="player-actions">
+                            <button class="btn btn-refresh" onclick="refreshPlayers()">
+                                <i class="fas fa-sync-alt"></i> Оновити
+                            </button>
                             <button class="btn fullscreen-btn">
                                 <i class="fas fa-expand"></i> Повний екран
                             </button>
@@ -1339,6 +1174,9 @@
                         <button class="btn" onclick="loadPlayers()">
                             <i class="fas fa-redo"></i> Спробувати знову
                         </button>
+                        <button class="btn" onclick="refreshPlayers()">
+                            <i class="fas fa-sync-alt"></i> Примусове оновлення
+                        </button>
                     </div>
                 `;
             }
@@ -1352,6 +1190,22 @@
                     fullscreenMessage.classList.remove('show');
                 }, 3000);
             }
+            
+            // Функція для оновлення плеєрів
+            window.refreshPlayers = async function() {
+                try {
+                    // Очищаємо кеш
+                    await fetch('/api/refresh');
+                    
+                    // Перезавантажуємо плеєри
+                    await loadPlayers();
+                    
+                    // Оновлюємо статус
+                    await updateStatus();
+                } catch (error) {
+                    console.error('Помилка при оновленні:', error);
+                }
+            };
             
             // Відстежуємо вихід з повноекранного режиму за допомогою клавіші ESC
             document.addEventListener('keydown', function(e) {
