@@ -1213,6 +1213,10 @@
                     fullscreenMessage.classList.remove('show');
                 }
             });
+            // Робимо функції глобальними
+            window.loadPlayers = loadPlayers;
+            window.refreshPlayers = refreshPlayers;
+            window.toggleSeason = toggleSeason;
         });
     </script>
 </body>
