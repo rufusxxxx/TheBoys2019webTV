@@ -1,33 +1,24 @@
 const express = require("express");
-const puppeteer = require("puppeteer"); // звичайний puppeteer
-const puppeteerExtra = require("puppeteer-extra");
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
+const axios = require("axios");
+const cheerio = require("cheerio");
 const UserAgent = require("user-agents");
 const NodeCache = require("node-cache");
 const cors = require("cors");
 const path = require("path");
 
-// Плагіни Puppeteer Extra
-puppeteerExtra.use(StealthPlugin());
-puppeteerExtra.use(AdblockerPlugin({ blockTrackers: true }));
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 const cache = new NodeCache({ stdTTL: 3600 }); // кеш на 1 годину
 
-// Middleware
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
-// Головна сторінка
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Випадковий мобільний User-Agent
 function getRandomMobileUserAgent() {
   const userAgent = new UserAgent([
     /Android/i,
@@ -40,62 +31,24 @@ function getRandomMobileUserAgent() {
   return userAgent.toString();
 }
 
-// Запуск браузера через Puppeteer Extra
-async function getBrowser() {
-  return await puppeteerExtra.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath: puppeteer.executablePath() // обов'язково локальний Chromium
-  });
-}
-
-// Затримка
-function delay(time) {
-  return new Promise(resolve => setTimeout(resolve, time));
-}
-
-// API для отримання плеєрів
 app.get("/api/data", async (req, res) => {
   const cachedData = cache.get("kinogoData");
   if (cachedData) return res.json(cachedData);
 
-  let browser;
   try {
     const url = "https://kinogo.run/1606-pacany-serial.html";
-    browser = await getBrowser();
-    const page = await browser.newPage();
-
     const userAgent = getRandomMobileUserAgent();
-    await page.setUserAgent(userAgent);
-    await page.setViewport({ width: 390, height: 844, isMobile: true });
 
-    await page.setRequestInterception(true);
-    page.on("request", (request) => {
-      const resourceType = request.resourceType();
-      if (["image", "stylesheet", "font", "media"].includes(resourceType)) {
-        request.abort();
-      } else {
-        request.continue();
-      }
+    const { data } = await axios.get(url, {
+      headers: { "User-Agent": userAgent }
     });
 
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-    await delay(5000);
+    const $ = cheerio.load(data);
 
-    const players = await page.$$eval("iframe", iframes =>
-      iframes
-        .map(f => f.src)
-        .filter(
-          src =>
-            src &&
-            src.startsWith("http") &&
-            !src.includes("google") &&
-            !src.includes("doubleclick") &&
-            !src.includes("ad.")
-        )
-    );
-
-    await browser.close();
+    const players = $("iframe")
+      .map((i, el) => $(el).attr("src"))
+      .get()
+      .filter(src => src && src.startsWith("http") && !src.includes("google") && !src.includes("ad"));
 
     const responseData = {
       success: true,
@@ -113,19 +66,16 @@ app.get("/api/data", async (req, res) => {
     res.json(responseData);
 
   } catch (error) {
-    console.error("Помилка при парсингу:", error);
-    if (browser) await browser.close();
+    console.error("Помилка при парсингу:", error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Оновлення кешу
 app.get("/api/refresh", (req, res) => {
   cache.del("kinogoData");
   res.json({ success: true, message: "Кеш очищено" });
 });
 
-// Статус API
 app.get("/api/status", (req, res) => {
   const cachedData = cache.get("kinogoData");
   res.json({
@@ -135,7 +85,6 @@ app.get("/api/status", (req, res) => {
   });
 });
 
-// Старт сервера
 app.listen(PORT, () => {
   console.log(`✅ Сервер запущено на http://localhost:${PORT}`);
 });
