@@ -43,7 +43,7 @@ function getRandomMobileUserAgent() {
 // Запуск браузера (через системний Chrome Render)
 async function getBrowser() {
   return await puppeteerExtra.launch({
-    executablePath: "/usr/bin/chromium",
+    executablePath: "/usr/bin/google-chrome-stable",
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
