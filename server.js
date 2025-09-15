@@ -1,5 +1,5 @@
 const express = require("express");
-const puppeteer = require("puppeteer"); // Звичайний puppeteer
+const puppeteer = require("puppeteer"); // звичайний puppeteer
 const puppeteerExtra = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
@@ -8,10 +8,7 @@ const NodeCache = require("node-cache");
 const cors = require("cors");
 const path = require("path");
 
-// Встановлюємо кеш Puppeteer у тимчасову папку
-process.env.PUPPETEER_CACHE_DIR = "/tmp/puppeteer-cache";
-
-// Плагіни Puppeteer
+// Плагіни Puppeteer Extra
 puppeteerExtra.use(StealthPlugin());
 puppeteerExtra.use(AdblockerPlugin({ blockTrackers: true }));
 
@@ -38,23 +35,23 @@ function getRandomMobileUserAgent() {
     /iPad/i,
     /iPod/i,
     /BlackBerry/i,
-    /Windows Phone/i,
+    /Windows Phone/i
   ]);
   return userAgent.toString();
 }
 
-// Запуск браузера через Puppeteer з вбудованим Chromium
+// Запуск браузера через Puppeteer Extra
 async function getBrowser() {
   return await puppeteerExtra.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath: puppeteer.executablePath() // Обов'язково!
+    executablePath: puppeteer.executablePath() // обов'язково локальний Chromium
   });
 }
 
 // Затримка
 function delay(time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
+  return new Promise(resolve => setTimeout(resolve, time));
 }
 
 // API для отримання плеєрів
@@ -85,11 +82,11 @@ app.get("/api/data", async (req, res) => {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     await delay(5000);
 
-    const players = await page.$$eval("iframe", (iframes) =>
+    const players = await page.$$eval("iframe", iframes =>
       iframes
-        .map((f) => f.src)
+        .map(f => f.src)
         .filter(
-          (src) =>
+          src =>
             src &&
             src.startsWith("http") &&
             !src.includes("google") &&
@@ -107,13 +104,14 @@ app.get("/api/data", async (req, res) => {
         { id: 1, title: "1 сезон (2019)" },
         { id: 2, title: "2 сезон (2020)" },
         { id: 3, title: "3 сезон (2022)" },
-        { id: 4, title: "4 сезон (2024)" },
+        { id: 4, title: "4 сезон (2024)" }
       ],
-      timestamp: new Date().toISOString(),
+      timestamp: new Date().toISOString()
     };
 
     cache.set("kinogoData", responseData);
     res.json(responseData);
+
   } catch (error) {
     console.error("Помилка при парсингу:", error);
     if (browser) await browser.close();
@@ -133,7 +131,7 @@ app.get("/api/status", (req, res) => {
   res.json({
     status: "ok",
     cached: !!cachedData,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 });
 
