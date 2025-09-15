@@ -8,13 +8,16 @@ const NodeCache = require("node-cache");
 const cors = require("cors");
 const path = require("path");
 
-// Додаємо плагіни
+// Встановлюємо кеш Puppeteer у тимчасову папку
+process.env.PUPPETEER_CACHE_DIR = "/tmp/puppeteer-cache";
+
+// Плагіни Puppeteer
 puppeteerExtra.use(StealthPlugin());
 puppeteerExtra.use(AdblockerPlugin({ blockTrackers: true }));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const cache = new NodeCache({ stdTTL: 3600 });
+const cache = new NodeCache({ stdTTL: 3600 }); // кеш на 1 годину
 
 // Middleware
 app.use(cors());
@@ -40,11 +43,12 @@ function getRandomMobileUserAgent() {
   return userAgent.toString();
 }
 
-// Запуск браузера через Puppeteer (вбудований Chromium)
+// Запуск браузера через Puppeteer з вбудованим Chromium
 async function getBrowser() {
   return await puppeteerExtra.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    executablePath: puppeteer.executablePath() // Обов'язково!
   });
 }
 
