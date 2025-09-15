@@ -6,7 +6,7 @@
   "scripts": {
   "start": "node server.js",
   "dev": "nodemon server.js",
-  "postinstall": "./node_modules/.bin/puppeteer install",
+  "postinstall": "node node_modules/puppeteer/install.js",
   "build": "echo 'Build complete'"
 },
   "dependencies": {
