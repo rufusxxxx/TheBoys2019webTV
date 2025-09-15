@@ -1,15 +1,16 @@
 const express = require("express");
-const puppeteer = require("puppeteer-extra");
+const puppeteer = require("puppeteer-core");
+const puppeteerExtra = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
-const UserAgent = require('user-agents');
+const UserAgent = require("user-agents");
 const NodeCache = require("node-cache");
 const cors = require("cors");
 const path = require("path");
 
 // Додаємо плагіни
-puppeteer.use(StealthPlugin());
-puppeteer.use(AdblockerPlugin({ blockTrackers: true }));
+puppeteerExtra.use(StealthPlugin());
+puppeteerExtra.use(AdblockerPlugin({ blockTrackers: true }));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,9 +18,9 @@ const cache = new NodeCache({ stdTTL: 3600 }); // Кешування на 1 го
 
 // Middleware
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(express.static(path.join(__dirname, "public")));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Головна сторінка
 app.get("/", (req, res) => {
@@ -34,25 +35,23 @@ function getRandomMobileUserAgent() {
     /iPad/i,
     /iPod/i,
     /BlackBerry/i,
-    /Windows Phone/i
+    /Windows Phone/i,
   ]);
   return userAgent.toString();
 }
 
-// Запуск браузера (спрощено для Render)
+// Запуск браузера (через системний Chrome Render)
 async function getBrowser() {
-  return await puppeteer.launch({
+  return await puppeteerExtra.launch({
+    executablePath: "/usr/bin/google-chrome-stable", // системний Chrome
     headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox"
-    ]
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 }
 
 // Затримка
 function delay(time) {
-  return new Promise(resolve => setTimeout(resolve, time));
+  return new Promise((resolve) => setTimeout(resolve, time));
 }
 
 // API для отримання даних
@@ -85,13 +84,17 @@ app.get("/api/data", async (req, res) => {
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
     await delay(5000);
 
-    const players = await page.$$eval("iframe", iframes =>
-      iframes.map(f => f.src).filter(src =>
-        src && src.startsWith("http") &&
-        !src.includes("google") &&
-        !src.includes("doubleclick") &&
-        !src.includes("ad.")
-      )
+    const players = await page.$$eval("iframe", (iframes) =>
+      iframes
+        .map((f) => f.src)
+        .filter(
+          (src) =>
+            src &&
+            src.startsWith("http") &&
+            !src.includes("google") &&
+            !src.includes("doubleclick") &&
+            !src.includes("ad.")
+        )
     );
 
     await browser.close();
@@ -103,14 +106,13 @@ app.get("/api/data", async (req, res) => {
         { id: 1, title: "1 сезон (2019)" },
         { id: 2, title: "2 сезон (2020)" },
         { id: 3, title: "3 сезон (2022)" },
-        { id: 4, title: "4 сезон (2024)" }
+        { id: 4, title: "4 сезон (2024)" },
       ],
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     };
 
     cache.set("kinogoData", responseData);
     res.json(responseData);
-
   } catch (error) {
     console.error("Помилка при парсингу:", error);
     if (browser) await browser.close();
@@ -130,7 +132,7 @@ app.get("/api/status", (req, res) => {
   res.json({
     status: "ok",
     cached: !!cachedData,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 
