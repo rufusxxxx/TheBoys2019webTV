@@ -1,5 +1,5 @@
 const express = require("express");
-const puppeteer = require("puppeteer-core");
+const puppeteer = require("puppeteer"); // Звичайний puppeteer
 const puppeteerExtra = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 const AdblockerPlugin = require("puppeteer-extra-plugin-adblocker");
@@ -14,7 +14,7 @@ puppeteerExtra.use(AdblockerPlugin({ blockTrackers: true }));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const cache = new NodeCache({ stdTTL: 3600 }); // Кешування на 1 годину
+const cache = new NodeCache({ stdTTL: 3600 });
 
 // Middleware
 app.use(cors());
@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// Отримання випадкового мобільного User-Agent
+// Випадковий мобільний User-Agent
 function getRandomMobileUserAgent() {
   const userAgent = new UserAgent([
     /Android/i,
@@ -40,10 +40,9 @@ function getRandomMobileUserAgent() {
   return userAgent.toString();
 }
 
-// Запуск браузера (через системний Chrome Render)
+// Запуск браузера через Puppeteer (вбудований Chromium)
 async function getBrowser() {
   return await puppeteerExtra.launch({
-    executablePath: "/usr/bin/google-chrome-stable",
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
@@ -54,12 +53,10 @@ function delay(time) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 
-// API для отримання даних
+// API для отримання плеєрів
 app.get("/api/data", async (req, res) => {
   const cachedData = cache.get("kinogoData");
-  if (cachedData) {
-    return res.json(cachedData);
-  }
+  if (cachedData) return res.json(cachedData);
 
   let browser;
   try {
@@ -136,7 +133,7 @@ app.get("/api/status", (req, res) => {
   });
 });
 
-// Запуск сервера
+// Старт сервера
 app.listen(PORT, () => {
   console.log(`✅ Сервер запущено на http://localhost:${PORT}`);
 });
