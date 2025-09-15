@@ -1,7 +1,6 @@
 const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
-const UserAgent = require("user-agents");
 const NodeCache = require("node-cache");
 const cors = require("cors");
 const path = require("path");
@@ -10,27 +9,29 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const cache = new NodeCache({ stdTTL: 3600 }); // кеш на 1 годину
 
+// Middleware
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+// Головна сторінка
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
+// Статичний список мобільних User-Agent
 function getRandomMobileUserAgent() {
-  const userAgent = new UserAgent([
-    /Android/i,
-    /iPhone/i,
-    /iPad/i,
-    /iPod/i,
-    /BlackBerry/i,
-    /Windows Phone/i
-  ]);
-  return userAgent.toString();
+  const mobileUserAgents = [
+    "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Linux; Android 13; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6116.11 Mobile Safari/537.36",
+    "Mozilla/5.0 (iPad; CPU OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+    "Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6116.11 Mobile Safari/537.36"
+  ];
+  return mobileUserAgents[Math.floor(Math.random() * mobileUserAgents.length)];
 }
 
+// API для отримання плеєрів
 app.get("/api/data", async (req, res) => {
   const cachedData = cache.get("kinogoData");
   if (cachedData) return res.json(cachedData);
@@ -71,11 +72,13 @@ app.get("/api/data", async (req, res) => {
   }
 });
 
+// Оновлення кешу
 app.get("/api/refresh", (req, res) => {
   cache.del("kinogoData");
   res.json({ success: true, message: "Кеш очищено" });
 });
 
+// Статус API
 app.get("/api/status", (req, res) => {
   const cachedData = cache.get("kinogoData");
   res.json({
@@ -85,6 +88,7 @@ app.get("/api/status", (req, res) => {
   });
 });
 
+// Старт сервера
 app.listen(PORT, () => {
   console.log(`✅ Сервер запущено на http://localhost:${PORT}`);
 });
