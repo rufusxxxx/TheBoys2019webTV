@@ -882,13 +882,14 @@
                         'controls': 0,
                         'disablekb': 1,
                         'fs': 0,
-                        'loop': 0,
+                        'loop': 1,
                         'modestbranding': 1,
                         'playsinline': 1,
                         'rel': 0,
                         'showinfo': 0,
                         'mute': 1,
-                        'quality': 'hd1080'
+                        'quality': 'hd1080',
+                        'playlist': VIDEO_ID
                     },
                     events: {
                         'onReady': onPlayerReady,
@@ -899,7 +900,7 @@
             
             function onPlayerReady(event) {
                 console.log('YouTube плеєр готовий');
-                // Запускаємо таймер на 45 секунд
+                // Запускаємо таймер на 20 секунд
                 startInitialTimer();
                 setupScrollHandling();
             }
@@ -907,17 +908,18 @@
             function onPlayerStateChange(event) {
                 // Коли відео закінчується
                 if (event.data === YT.PlayerState.ENDED) {
-                    stopVideo();
+                    // Автоматично перезапускаємо відео
+                    event.target.playVideo();
                 }
             }
             
-            // Таймер на 45 секунд
+            // Таймер на 20 секунд
             function startInitialTimer() {
                 initialTimer = setTimeout(() => {
                     if (isAtTop && !hasPlayed && !hasScrolledToBottom) {
                         playVideo();
                     }
-                }, 45000); // 45 секунд
+                }, 20000); // 20 секунд
             }
             
             // Відстеження прокручування
@@ -973,7 +975,7 @@
             function stopVideo() {
                 if (!youtubePlayer) return;
                 
-                youtubePlayer.stopVideo();
+                youtubePlayer.pauseVideo();
                 youtubeBackground.classList.remove('active');
                 staticBackground.classList.remove('hidden');
             }
