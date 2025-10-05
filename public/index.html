@@ -837,7 +837,7 @@
     <script>
         // YouTube API ключ
         const YOUTUBE_API_KEY = 'AIzaSyDqA1bFBvQh32MmnooCx1lvANJOkM9gdhU';
-        const VIDEO_ID = 'F9U-yoJbgWs';
+        const VIDEO_ID = 'K-8VYKUZYiw'; // Оновлений ID відео
         
         // Глобальні змінні для керування станом
         let youtubePlayer;
@@ -878,18 +878,19 @@
                 youtubePlayer = new YT.Player('youtubeBackground', {
                     videoId: VIDEO_ID,
                     playerVars: {
-                        'autoplay': 0,
+                        'autoplay': 1, // Автоматичне відтворення
                         'controls': 0,
                         'disablekb': 1,
                         'fs': 0,
-                        'loop': 1,
+                        'loop': 1, // Зациклювання
                         'modestbranding': 1,
                         'playsinline': 1,
                         'rel': 0,
                         'showinfo': 0,
-                        'mute': 1,
+                        'mute': 1, // Без звуку для автовідтворення
                         'quality': 'hd1080',
-                        'playlist': VIDEO_ID
+                        'playlist': VIDEO_ID, // Для коректного зациклювання
+                        'start': 21 // Початок з 21 секунди
                     },
                     events: {
                         'onReady': onPlayerReady,
@@ -906,9 +907,8 @@
             }
             
             function onPlayerStateChange(event) {
-                // Коли відео закінчується
+                // Коли відео закінчується - автоматично перезапускаємо
                 if (event.data === YT.PlayerState.ENDED) {
-                    // Автоматично перезапускаємо відео
                     event.target.playVideo();
                 }
             }
@@ -950,7 +950,12 @@
                     
                     // Зупиняємо відео при прокручуванні
                     if (!isAtTop && youtubePlayer && youtubePlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-                        stopVideo();
+                        pauseVideo();
+                    }
+                    
+                    // Відновлюємо відео при поверненні нагору
+                    if (isAtTop && youtubePlayer && youtubePlayer.getPlayerState() === YT.PlayerState.PAUSED) {
+                        playVideo();
                     }
                     
                     lastScrollTop = currentScroll;
@@ -962,7 +967,7 @@
             
             // Відтворення відео
             function playVideo() {
-                if (hasPlayed || !youtubePlayer) return;
+                if (!youtubePlayer) return;
                 
                 staticBackground.classList.add('hidden');
                 youtubeBackground.classList.add('active');
@@ -971,11 +976,18 @@
                 hasPlayed = true;
             }
             
+            // Пауза відео
+            function pauseVideo() {
+                if (!youtubePlayer) return;
+                
+                youtubePlayer.pauseVideo();
+            }
+            
             // Зупинка відео
             function stopVideo() {
                 if (!youtubePlayer) return;
                 
-                youtubePlayer.pauseVideo();
+                youtubePlayer.stopVideo();
                 youtubeBackground.classList.remove('active');
                 staticBackground.classList.remove('hidden');
             }
