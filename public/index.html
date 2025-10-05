@@ -31,53 +31,6 @@
             line-height: 1.6;
             min-height: 100vh;
             padding: 0;
-            position: relative;
-        }
-        
-        /* YouTube Background Video */
-        #youtubeBackground {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2;
-            opacity: 0;
-            transition: opacity 1s ease;
-            pointer-events: none;
-        }
-        
-        #youtubeBackground.active {
-            opacity: 0.3;
-        }
-        
-        #youtubeBackground iframe {
-            width: 100vw;
-            height: 56.25vw;
-            min-height: 100vh;
-            min-width: 177.77vh;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-        }
-        
-        .static-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('https://m.media-amazon.com/images/M/MV5BMWJlN2U5MzItNjU4My00NTM2LWFjOWUtOWFiNjg3ZTMxZDY1XkEyXkFqcGc@._V1_QL75_UX500_CR0,172,500,281_.jpg');
-            background-size: cover;
-            background-position: center;
-            opacity: 0.3;
-            z-index: -3;
-            transition: opacity 1s ease;
-        }
-        
-        .static-background.hidden {
-            opacity: 0;
         }
         
         .container {
@@ -732,12 +685,6 @@
     </style>
 </head>
 <body>
-    <!-- Фонове зображення -->
-    <div class="static-background"></div>
-    
-    <!-- YouTube фон -->
-    <div id="youtubeBackground"></div>
-    
     <div class="fullscreen-message" id="fullscreenMessage">
         Для виходу з повного екрану натисніть ESC
     </div>
@@ -799,7 +746,7 @@
                         <p class = "text-left-ds"><b>Рік випуску:</b> 2019.</p>
                         <p class = "text-left-ds"><b>Країна:</b> США.</p>
                         <p class = "text-left-ds"><b>Жанр:</b> фантастика, бойовик, комедія, кримінал.</p>
-                        <p class = "text-left-ds"><b>Прем'єра (світ):</b> 16 липня 2019.</p>
+                        <p class = "text-left-ds"><b>Прем’єра (світ):</b> 16 липня 2019.</p>
                         <p class = "text-left-ds"><b>Режисери:</b> Філіп Сгриккія, Стефан Шварц, Фред Туа.</p>
                         <p class = "text-left-ds"><b>У ролях:</b> Карл Урбан, Джек Квейд, Ентоні Старр, Ерін Моріарті, Домінік Макеллігот, Джессі Ашер, Лаз Алонсо, Чейс Кроуфорд, Томер Капон, Карен Фукухара.</p>
                     </div>
@@ -828,28 +775,11 @@
                 </div>
                  <br>
                 <p class="footer-text" style = "text-align: center;">
-                    Дивись серіал "Пацани" у Full HD та 4K якості, без набридливої реклами та з великим вибором озвучок на будь-який смак!
+                    Дивись серіал “Пацани” у Full HD та 4K якості, без набридливої реклами та з великим вибором озвучок на будь-який смак!
                 </p>
         </div>
     </footer>
 
-    <!-- YouTube IFrame API -->
-    <script>
-        // YouTube API ключ
-        const YOUTUBE_API_KEY = 'AIzaSyDqA1bFBvQh32MmnooCx1lvANJOkM9gdhU';
-        const VIDEO_ID = 'K-8VYKUZYiw'; // Оновлений ID відео
-        
-        // Глобальні змінні для керування станом
-        let youtubePlayer;
-        let hasPlayed = false;
-        let isAtTop = true;
-        let hasScrolledToBottom = false;
-        let initialTimer = null;
-        let scrollTimer = null;
-    </script>
-    
-    <script src="https://www.youtube.com/iframe_api"></script>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const fullscreenMessage = document.getElementById('fullscreenMessage');
@@ -864,133 +794,12 @@
             const seasonsAccordion = document.getElementById('seasonsAccordion');
             const statusIndicator = document.getElementById('statusIndicator');
             const statusText = document.getElementById('statusText');
-            const youtubeBackground = document.getElementById('youtubeBackground');
-            const staticBackground = document.querySelector('.static-background');
             
             // Константи для TMDb API
             const API_KEY = '2c0650e86bd4313266d8651b81e4f713';
             const SERIES_ID = 76479; // ID серіалу "The Boys" на TMDb
             const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w185';
             const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/185x278/333/fff?text=No+Image';
-            
-            // Ініціалізація YouTube плеєра
-            function onYouTubeIframeAPIReady() {
-                youtubePlayer = new YT.Player('youtubeBackground', {
-                    videoId: VIDEO_ID,
-                    playerVars: {
-                        'autoplay': 1, // Автоматичне відтворення
-                        'controls': 0,
-                        'disablekb': 1,
-                        'fs': 0,
-                        'loop': 1, // Зациклювання
-                        'modestbranding': 1,
-                        'playsinline': 1,
-                        'rel': 0,
-                        'showinfo': 0,
-                        'mute': 1, // Без звуку для автовідтворення
-                        'quality': 'hd1080',
-                        'playlist': VIDEO_ID, // Для коректного зациклювання
-                        'start': 21 // Початок з 21 секунди
-                    },
-                    events: {
-                        'onReady': onPlayerReady,
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-            }
-            
-            function onPlayerReady(event) {
-                console.log('YouTube плеєр готовий');
-                // Запускаємо таймер на 20 секунд
-                startInitialTimer();
-                setupScrollHandling();
-            }
-            
-            function onPlayerStateChange(event) {
-                // Коли відео закінчується - автоматично перезапускаємо
-                if (event.data === YT.PlayerState.ENDED) {
-                    event.target.playVideo();
-                }
-            }
-            
-            // Таймер на 20 секунд
-            function startInitialTimer() {
-                initialTimer = setTimeout(() => {
-                    if (isAtTop && !hasPlayed && !hasScrolledToBottom) {
-                        playVideo();
-                    }
-                }, 20000); // 20 секунд
-            }
-            
-            // Відстеження прокручування
-            function setupScrollHandling() {
-                let lastScrollTop = 0;
-                
-                window.addEventListener('scroll', () => {
-                    clearTimeout(scrollTimer);
-                    
-                    const currentScroll = window.pageYOffset;
-                    isAtTop = currentScroll <= 100;
-                    
-                    // Перевіряємо, чи користувач дійшов до низу
-                    const isAtBottom = (window.innerHeight + currentScroll) >= document.body.offsetHeight - 100;
-                    
-                    if (isAtBottom) {
-                        hasScrolledToBottom = true;
-                    }
-                    
-                    // Оновлюємо стан, якщо користувач повернувся нагору після прокручування до низу
-                    if (isAtTop && hasScrolledToBottom) {
-                        hasPlayed = false;
-                        hasScrolledToBottom = false;
-                        
-                        // Перезапускаємо таймер для нового циклу
-                        startInitialTimer();
-                    }
-                    
-                    // Зупиняємо відео при прокручуванні
-                    if (!isAtTop && youtubePlayer && youtubePlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-                        pauseVideo();
-                    }
-                    
-                    // Відновлюємо відео при поверненні нагору
-                    if (isAtTop && youtubePlayer && youtubePlayer.getPlayerState() === YT.PlayerState.PAUSED) {
-                        playVideo();
-                    }
-                    
-                    lastScrollTop = currentScroll;
-                    
-                    // Додаємо невелику затримку для стабілізації
-                    scrollTimer = setTimeout(() => {}, 100);
-                });
-            }
-            
-            // Відтворення відео
-            function playVideo() {
-                if (!youtubePlayer) return;
-                
-                staticBackground.classList.add('hidden');
-                youtubeBackground.classList.add('active');
-                
-                youtubePlayer.playVideo();
-                hasPlayed = true;
-            }
-            
-            // Пауза відео
-            function pauseVideo() {
-                if (!youtubePlayer) return;
-                
-                youtubePlayer.pauseVideo();
-            }
-            
-            // Зупинка відео
-            function stopVideo() {
-                if (!youtubePlayer) return;
-                
-                youtubePlayer.stopVideo();
-                youtubeBackground.classList.remove('active');
-                staticBackground.classList.remove('hidden');
-            }
             
             // Оновлюємо статус
             updateStatus();
@@ -1496,16 +1305,16 @@
                                         <tr>
                                             <td class="episode-num">7</td>
                                             <td class="episode-title">«Инсайдер»</td>
-                                            <td class="episode-director">Катриона Маккензі</td>
+                                            <td class="episode-director">Катриона Маккензи</td>
                                             <td class="episode-writer">Поль Греллонг</td>
                                             <td class="episode-date">11 июля 2024</td>
                                         </tr>
                                         <tr>
                                             <td class="episode-num">8</td>
                                             <td class="episode-title">«Убийственный забег»</td>
-                                            <td class="episode-director">Ерік Кріпке</td>
-                                            <td class="episode-writer">Джессіка Чоу і Девід Рід</td>
-                                            <td class="episode-date">18 липня 2024</td>
+                                            <td class="episode-director">Эрик Крипke</td>
+                                            <td class="episode-writer">Джессика Чоу и Дэвид Рид</td>
+                                            <td class="episode-date">18 июля 2024</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -1672,7 +1481,6 @@
                     fullscreenMessage.classList.remove('show');
                 }
             });
-            
             // Робимо функції глобальними
             window.loadPlayers = loadPlayers;
             window.refreshPlayers = refreshPlayers;
