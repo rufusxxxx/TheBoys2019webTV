@@ -6,6 +6,7 @@
     <title>The Boys 2019 | TV series</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         * {
             margin: 0;
@@ -16,8 +17,8 @@
         :root {
             --primary: #e50914;
             --primary-dark: #b8070f;
-            --dark: #0a0a0a;
-            --dark-light: #141414;
+            --dark: #000000;
+            --dark-light: #000000;
             --gray: #2a2a2a;
             --gray-light: #e6e6e6;
             --text: #fff;
@@ -37,6 +38,16 @@
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
+        }
+        .hero-bg-video {
+           position: absolute;
+           top: 0;
+           left: 0;
+           width: 100%;
+           height: 100%;
+           object-fit: cover;
+           z-index: -1;
+           opacity: 0.3;
         }
 
         .text-left-ds {
@@ -733,6 +744,10 @@
     </header>
     
     <section class="hero">
+        <video class="hero-bg-video" autoplay="" muted="" loop="" poster="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/items/2118370/c8d6fb78b5dff3939758f6c590176572afe60f88.jpg" fetchpriority="VeryHigh">
+            <source src="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/items/2118370/ce3c0ab4139dfb57bb06b09d0f1ff60400801bb4.webm" type="video/webm">
+            <source src="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/items/2118370/e181d41d90b2c483b2ece5f58788edd255805d91.mp4" type="video/mp4">
+        </video>
         <div class="container">
             <div class="hero-content">
                 <div class="hero-poster">
