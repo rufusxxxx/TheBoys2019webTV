@@ -8,209 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="favicon.png">
     <style>
-        /* Стилі для екрана завантаження */
-        #loadingScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #000;
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 1;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        #loadingScreen.fade-out {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .ls-background {
-            position: fixed;
-            inset: 0;
-            background: 
-                radial-gradient(circle at 20% 80%, rgba(184, 7, 15, 0.4) 0%, transparent 40%),
-                radial-gradient(circle at 80% 20%, rgba(229, 9, 20, 0.35) 0%, transparent 40%),
-                radial-gradient(circle at 60% 60%, rgba(229, 9, 20, 0.25) 0%, transparent 30%),
-                radial-gradient(circle at 30% 30%, rgba(255, 50, 50, 0.2) 0%, transparent 25%),
-                radial-gradient(circle at 70% 70%, rgba(184, 7, 15, 0.2) 0%, transparent 20%),
-                linear-gradient(135deg, #000000 0%, #0a0a0a 40%, #000000 100%);
-            background-size: 400% 400%;
-            animation: ls-gradientShift 25s ease-in-out infinite;
-        }
-
-        @keyframes ls-gradientShift {
-            0%, 100% { 
-                background-position: 0% 50%; 
-            }
-            25% { 
-                background-position: 25% 75%; 
-            }
-            50% { 
-                background-position: 100% 50%; 
-            }
-            75% { 
-                background-position: 75% 25%; 
-            }
-        }
-
-        .ls-particles-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        .ls-particle {
-            position: absolute;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(229, 9, 20, 0.8) 0%, transparent 80%);
-            opacity: 0;
-            filter: blur(2px);
-            animation: ls-particleFloat linear forwards;
-            will-change: transform, opacity;
-        }
-
-        @keyframes ls-particleFloat {
-            0% {
-                transform: translate(var(--ls-start-x), var(--ls-start-y)) scale(0.6) rotate(0deg);
-                opacity: 0;
-            }
-            15% {
-                opacity: var(--ls-opacity);
-            }
-            85% {
-                opacity: var(--ls-opacity);
-            }
-            100% {
-                transform:
-                    translate(calc(var(--ls-start-x) + var(--ls-distance-x) * 1vw),
-                              calc(var(--ls-start-y) - var(--ls-distance-y) * 1vh))
-                    scale(1.0)
-                    rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        .ls-loader {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10;
-        }
-
-        .ls-glass-container {
-            position: relative;
-            width: 280px;
-            height: 280px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-radius: 24px;
-            border: 1px solid rgba(229, 9, 20, 0.2);
-            box-shadow: 
-                0 8px 32px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                inset 0 0 25px rgba(229, 9, 20, 0.1);
-        }
-
-        .ls-clapper-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .ls-clapper {
-            width: 120px;
-            height: 120px;
-            object-fit: contain;
-            animation: 
-                ls-clapperBounce 2s ease-in-out infinite,
-                ls-clapperGlow 3s ease-in-out infinite;
-            transform-origin: center;
-            z-index: 5;
-            filter: 
-                drop-shadow(0 0 20px rgba(229, 9, 20, 0.8))
-                drop-shadow(0 0 40px rgba(229, 9, 20, 0.4));
-        }
-
-        .ls-rotating-ring {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 3px solid transparent;
-            border-top: 3px solid #e50914;
-            border-right: 3px solid rgba(229, 9, 20, 0.3);
-            border-radius: 50%;
-            animation: ls-rotate 2s linear infinite;
-        }
-
-        @keyframes ls-rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes ls-clapperBounce {
-            0%, 100% { 
-                transform: scale(1) rotate(0deg); 
-            }
-            25% { 
-                transform: scale(1.15) rotate(-3deg); 
-            }
-            50% { 
-                transform: scale(1.1) rotate(3deg); 
-            }
-            75% { 
-                transform: scale(1.15) rotate(-2deg); 
-            }
-        }
-
-        @keyframes ls-clapperGlow {
-            0%, 100% { 
-                filter: 
-                    drop-shadow(0 0 20px rgba(229, 9, 20, 0.8))
-                    drop-shadow(0 0 40px rgba(229, 9, 20, 0.4));
-            }
-            50% { 
-                filter: 
-                    drop-shadow(0 0 30px rgba(229, 9, 20, 1))
-                    drop-shadow(0 0 60px rgba(229, 9, 20, 0.6));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .ls-glass-container {
-                width: 240px;
-                height: 240px;
-            }
-            
-            .ls-clapper-container {
-                width: 160px;
-                height: 160px;
-            }
-            
-            .ls-clapper {
-                width: 100px;
-                height: 100px;
-            }
-        }
-
-        /* Основні стилі сторінки */
         * {
             margin: 0;
             padding: 0;
@@ -899,20 +696,6 @@
     </style>
 </head>
 <body>
-    <!-- Екран завантаження -->
-    <div id="loadingScreen">
-        <div class="ls-background"></div>
-        <div class="ls-particles-container" id="lsParticlesContainer"></div>
-        <div class="ls-loader">
-            <div class="ls-glass-container">
-                <div class="ls-clapper-container">
-                    <div class="ls-rotating-ring"></div>
-                    <img src="https://i.postimg.cc/gJKz0TrD/Copilot-20251109-180751.png" class="ls-clapper" alt="Кінохлопавка">
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="fullscreen-message" id="fullscreenMessage">
         Для виходу з повного екрану натисніть ESC
     </div>
@@ -978,7 +761,7 @@
                         <p class = "text-left-ds"><b>Рік випуску:</b> 2019.</p>
                         <p class = "text-left-ds"><b>Країна:</b> США.</p>
                         <p class = "text-left-ds"><b>Жанр:</b> фантастика, бойовик, комедія, кримінал.</p>
-                        <p class = "text-left-ds"><b>Прем'єра (світ):</b> 16 липня 2019.</p>
+                        <p class = "text-left-ds"><b>Прем’єра (світ):</b> 16 липня 2019.</p>
                         <p class = "text-left-ds"><b>Режисери:</b> Філіп Сгриккія, Стефан Шварц, Фред Туа.</p>
                         <p class = "text-left-ds"><b>У ролях:</b> Карл Урбан, Джек Квейд, Ентоні Старр, Ерін Моріарті, Домінік Макеллігот, Джессі Ашер, Лаз Алонсо, Чейс Кроуфорд, Томер Капон, Карен Фукухара.</p>
                     </div>
@@ -1007,80 +790,12 @@
                 </div>
                  <br>
                 <p class="footer-text" style = "text-align: center;">
-                    Дивись серіал "Пацани" у Full HD та 4K якості, без набридливої реклами та з великим вибором озвучок на будь-який смак!
+                    Дивись серіал “Пацани” у Full HD та 4K якості, без набридливої реклами та з великим вибором озвучок на будь-який смак!
                 </p>
         </div>
     </footer>
 
     <script>
-        // Скрипт для екрана завантаження
-        document.addEventListener('DOMContentLoaded', function() {
-            const loadingScreen = document.getElementById('loadingScreen');
-            const lsParticlesContainer = document.getElementById('lsParticlesContainer');
-            
-            // Функція створення частинок
-            function createLoopingParticles() {
-                const container = lsParticlesContainer;
-                const particleCount = 25;
-
-                function createParticleElement() {
-                    const particle = document.createElement('div');
-                    particle.classList.add('ls-particle');
-                    return particle;
-                }
-
-                function resetParticle(particle) {
-                    const size = Math.random() * 25 + 10;
-                    const startX = Math.random() * 100;
-                    const startY = Math.random() * 100;
-                    const distanceX = (Math.random() - 0.5) * 10;
-                    const distanceY = Math.random() * 70 + 30;
-                    const duration = Math.random() * 20 + 20;
-                    const opacity = Math.random() * 0.25 + 0.2;
-                    const hue = 0 + Math.random() * 10;
-
-                    particle.style.width = `${size}px`;
-                    particle.style.height = `${size}px`;
-                    particle.style.setProperty('--ls-start-x', `${startX}vw`);
-                    particle.style.setProperty('--ls-start-y', `${startY}vh`);
-                    particle.style.setProperty('--ls-distance-x', distanceX);
-                    particle.style.setProperty('--ls-distance-y', distanceY);
-                    particle.style.setProperty('--ls-opacity', opacity);
-                    particle.style.animationDuration = `${duration}s`;
-                    particle.style.background = `radial-gradient(circle, hsl(${hue}, 85%, 80%) 0%, transparent 80%)`;
-
-                    // Скидання анімації
-                    particle.classList.remove('ls-particle');
-                    void particle.offsetWidth;
-                    particle.classList.add('ls-particle');
-
-                    // Перезапуск
-                    setTimeout(() => resetParticle(particle), duration * 1000);
-                }
-
-                for (let i = 0; i < particleCount; i++) {
-                    const particle = createParticleElement();
-                    container.appendChild(particle);
-                    resetParticle(particle);
-                }
-            }
-            
-            // Функція приховування екрана завантаження
-            function hideLoader() {
-                setTimeout(() => {
-                    loadingScreen.classList.add('fade-out');
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                    }, 500);
-                }, 2000);
-            }
-            
-            // Ініціалізація
-            createLoopingParticles();
-            hideLoader();
-        });
-
-        // Основний скрипт сторінки
         document.addEventListener('DOMContentLoaded', function() {
             const fullscreenMessage = document.getElementById('fullscreenMessage');
             const playersContainer = document.getElementById('playersContainer');
