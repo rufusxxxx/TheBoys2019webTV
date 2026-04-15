@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Підтвердження</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>Введіть код підтвердження</h2>
+    <form id="verify-form">
+      <input type="email" id="email" placeholder="Email" required readonly>
+      <input type="text" id="token" placeholder="Код з листа" required>
+      <button type="submit">Підтвердити</button>
+    </form>
+    <div id="message"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get('type') || 'signup';
+    const email = localStorage.getItem('registerEmail') || localStorage.getItem('resetEmail');
+    
+    if (!email) {
+      window.location.href = '/login.html';
+    }
+
+    document.getElementById('email').value = email;
+
+    document.getElementById('verify-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = document.getElementById('token').value;
+      const msgDiv = document.getElementById('message');
+
+      try {
+        const response = await fetch(`${API_BASE}/auth/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, token, type })
+        });
+        const data = await response.json();
+        if (response.ok) {
+          if (type === 'signup') {
+            localStorage.setItem('tempSession', JSON.stringify(data.session));
+            localStorage.removeItem('registerEmail');
+            window.location.href = '/set-password.html';
+          } else if (type === 'recovery') {
+            localStorage.setItem('tempSession', JSON.stringify(data.session));
+            localStorage.removeItem('resetEmail');
+            window.location.href = '/set-password.html?reset=true';
+          }
+        } else {
+          msgDiv.innerHTML = `<span class="error">${data.error}</span>`;
+        }
+      } catch (err) {
+        msgDiv.innerHTML = '<span class="error">Помилка мережі</span>';
+      }
+    });
+  </script>
+</body>
+</html>

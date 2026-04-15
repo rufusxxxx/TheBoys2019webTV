@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вхід | CommentApp</title>
+  <link rel="stylesheet" href="/style/style.css">
+</head>
+<body>
+  <div class="container" style="max-width: 450px; margin-top: 5rem;">
+    <div class="card">
+      <h1 style="margin-bottom: 1.5rem; text-align: center;">👋 Вхід</h1>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required autofocus>
+        </div>
+        <div class="form-group">
+          <label for="password">Пароль</label>
+          <input type="password" id="password" required>
+        </div>
+        <button type="submit" id="login-btn" style="width: 100%;">Увійти</button>
+        <p style="margin-top: 1.5rem; text-align: center;">
+          <a href="/forgot-password.html" style="color: var(--gray-600);">Забули пароль?</a>
+        </p>
+        <p style="margin-top: 0.5rem; text-align: center;">
+          Немає акаунту? <a href="/register.html" style="color: var(--primary);">Зареєструватися</a>
+        </p>
+      </form>
+      <div id="message"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('login-btn');
+      const originalText = btn.textContent;
+      clearMessage();
+      btn.disabled = true;
+      btn.textContent = '⏳ Вхід...';
+      try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (res.ok && data.session) {
+          await sb.auth.setSession({
+            access_token: data.session.access_token,
+            refresh_token: data.session.refresh_token
+          });
+          window.location.href = '/?openProfile=1';
+        } else {
+          showMessage(data.error || 'Помилка входу', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        showMessage('Помилка мережі', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+      }
+    });
+  </script>
+</body>
+</html>
