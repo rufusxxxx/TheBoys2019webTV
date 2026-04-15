@@ -6,7 +6,7 @@ router.post('/register', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
-  const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-callback.html?flow=signup`;
+  const redirectUrl = `${process.env.FRONTEND_URL || 'https://the-boys-2019-kino-tvseries.onrender.com/'}/auth-callback.html?flow=signup`;
 
   const { error } = await supabaseAdmin.auth.signUp({
     email,
@@ -55,7 +55,7 @@ router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required' });
 
-  const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth-callback.html?flow=reset`;
+  const redirectUrl = `${process.env.FRONTEND_URL || 'https://the-boys-2019-kino-tvseries.onrender.com/'}/auth-callback.html?flow=reset`;
 
   const { error } = await supabaseAdmin.auth.resetPasswordForEmail(email, {
     redirectTo: redirectUrl
