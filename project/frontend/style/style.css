@@ -1130,6 +1130,7 @@ tr:hover {
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
+    padding: 1rem 20px;
 }
 
 .admin-header nav a {
