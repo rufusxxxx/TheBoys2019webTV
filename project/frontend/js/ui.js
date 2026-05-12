@@ -54,7 +54,7 @@ function showConfirmModal(options) {
           <h3 style="margin-bottom: 1rem;">${options.title || 'Підтвердження'}</h3>
           <p style="margin-bottom: 1.5rem;">${options.message}</p>
           <div style="display: flex; gap: 1rem; justify-content: center;">
-            <button id="confirm-yes" class="confirm-btn-yes" style="background: var(--danger);">${options.yesText || 'Так'}</button>
+            <button id="confirm-yes" class="confirm-btn-yes" style="/* background: var(--danger); */">${options.yesText || 'Так'}</button>
             <button id="confirm-no" class="confirm-btn-no secondary">${options.noText || 'Скасувати'}</button>
           </div>
         </div>
