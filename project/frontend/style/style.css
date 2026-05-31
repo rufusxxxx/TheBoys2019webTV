@@ -23,6 +23,10 @@
     --cm-transition: all 0.2s ease;
 }
 
+::-webkit-scrollbar {
+    display: none;
+}
+
 * {
     margin: 0;
     padding: 0;
